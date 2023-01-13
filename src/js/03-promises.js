@@ -1,4 +1,4 @@
-
+import Notiflix from 'notiflix';
 
 const firstDelay = document.querySelector('input[name=delay]')
 const delayStep = document.querySelector('input[name=step]')
@@ -8,43 +8,38 @@ const button = document.querySelector("button")
 
 
 function createPromise(position, delay) {
+
   const shouldResolve = Math.random() > 0.3;
-  if (shouldResolve) {
-    // Fulfill
-    console.log(`✅ Fulfilled promise ${+position + 1} in ${delay}ms`)
-  } else {
-    // Reject
-    console.log(`❌ Rejected promise ${+position + 1} in ${delay}ms`)
-  }
+
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (shouldResolve) {
+        resolve({position, delay});
+      } else {
+        reject({position, delay});
+      }
+    }, delay);
+  }); 
+
+  promise.then(({ position, delay }) => {
+    Notiflix.Notify.success(`✅ Fulfilled promise ${+position + 1} in ${delay}ms`);
+  })
+  promise.catch(({ position, delay }) => {
+    Notiflix.Notify.failure(`❌ Rejected promise ${+position + 1} in ${delay}ms`);
+  });
 }
 
 function formSubmitter (event) {
+
 event.preventDefault()
 
-setTimeout(() => {
+let delay = +firstDelay.value
 
   for (let index = 0; index < amount.value; index++) {
 
-    let delay = +firstDelay.value
-
-    console.log(index)
-
-    if (index === 0) {
-
-      createPromise(index, delay)
-    } else {
-
-      console.log('Kiedy')
-
-      setTimeout (() => {
-        delay = +firstDelay.value + index * +delayStep.value
-        console.log(delayStep.value)
-        createPromise(index, delay)
-      }, delayStep.value)
+    createPromise(index, delay)
+    delay = +firstDelay.value + (index + 1) * +delayStep.value
     }
   }
-
-}, firstDelay.value)
-}
 
 form.addEventListener("submit", formSubmitter)
